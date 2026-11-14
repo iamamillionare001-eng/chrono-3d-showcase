@@ -235,8 +235,8 @@ function animate() {
     const time = Date.now() * 0.005;
     watch.lumeIndices.forEach((lume, index) => {
         const pulseIntensity = Math.sin(time + index) * 0.2 + 0.8;
-        (lume.material as THREE.MeshBasicMaterial).emissive.setHex(0x00ff99);
-        (lume.material as THREE.MeshBasicMaterial).emissiveIntensity = pulseIntensity;
+        lume.material.emissive.setHex(0x00ff99);
+        lume.material.emissiveIntensity = pulseIntensity;
     });
     
     // Animate skeleton hands
