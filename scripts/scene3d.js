@@ -1,9 +1,10 @@
 // Initialize Three.js scene for high-detail tourbillon watch showcase
 import * as THREE from 'three';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 // Register GSAP plugins
+const { ScrollTrigger } = gsap;
+
 gsap.registerPlugin(ScrollTrigger);
 
 // Set up the scene with dark background
@@ -235,8 +236,10 @@ function animate() {
     const time = Date.now() * 0.005;
     watch.lumeIndices.forEach((lume, index) => {
         const pulseIntensity = Math.sin(time + index) * 0.2 + 0.8;
-        lume.material.emissive.setHex(0x00ff99);
-        lume.material.emissiveIntensity = pulseIntensity;
+        if (lume.material) {
+            lume.material.emissive.setHex(0x00ff99);
+            lume.material.emissiveIntensity = pulseIntensity;
+        }
     });
     
     // Animate skeleton hands
