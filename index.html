@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Product Showcase</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader" class="preloader">
+        <div class="loader"></div>
+        <span class="loading-text">Loading luxury experience...</span>
+    </div>
+
+    <!-- Header -->
+    <header class="glass-header">
+        <div class="header-content">
+            <h1 class="logo">LUXE<span>SHOW</span></h1>
+            <nav class="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#gallery" class="nav-link">Gallery</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Elevate Your Experience</h1>
+            <p class="hero-subtitle">Premium craftsmanship meets cutting-edge innovation</p>
+            <button class="cta-button" data-modal-open="preorder-modal">Explore Collection</button>
+        </div>
+    </section>
+
+    <!-- 3D Scene Container -->
+    <div id="scene-container"></div>
+
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="feature-chapter chapter-1">
+            <h2 class="chapter-title">Unparalleled Craftsmanship</h2>
+            <p class="chapter-description">Each piece is meticulously handcrafted using traditional techniques passed down through generations.</p>
+        </div>
+        <div class="feature-chapter chapter-2">
+            <h2 class="chapter-title">Innovative Technology</h2>
+            <p class="chapter-description">Advanced materials and smart technology seamlessly integrated for optimal performance.</p>
+        </div>
+        <div class="feature-chapter chapter-3">
+            <h2 class="chapter-title">Luxury Redefined</h2>
+            <p class="chapter-description">Experience the pinnacle of luxury with our exclusive collection designed for discerning clients.</p>
+        </div>
+    </section>
+
+    <!-- Material Switcher -->
+    <div class="material-switcher">
+        <button class="switch-btn active" data-material="gold">Gold</button>
+        <button class="switch-btn" data-material="silver">Silver</button>
+        <button class="switch-btn" data-material="black">Black</button>
+        <button class="switch-btn" data-material="white">White</button>
+    </div>
+
+    <!-- Pre-order Modal -->
+    <div id="preorder-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Pre-order Now</h2>
+            <p>Be among the first to experience our exclusive collection.</p>
+            <form id="preorder-form">
+                <input type="text" placeholder="Full Name" required>
+                <input type="email" placeholder="Email Address" required>
+                <select required>
+                    <option value="" disabled selected>Select Product</option>
+                    <option>Deluxe Collection</option>
+                    <option>Premium Edition</option>
+                    <option>Limited Series</option>
+                </select>
+                <button type="submit">Pre-order Now</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="scripts/scene3d.js" type="module"></script>
+    <script src="scripts/animations.js" type="module"></script>
+    <script src="scripts/app.js" type="module"></script>
+</body>
+</html>
