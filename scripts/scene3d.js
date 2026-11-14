@@ -1,306 +1,214 @@
-// Initialize Three.js scene for high-detail tourbillon watch showcase
 import * as THREE from 'three';
 import gsap from 'gsap';
-
-// Register GSAP plugins
-const { ScrollTrigger } = gsap;
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Set up the scene with dark background
+const container = document.getElementById('scene-container');
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0a14);
 
-// Create camera with perspective
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-camera.position.z = 8;
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(2.2, 0.2, 7.5);
 
-// Set up renderer with high quality settings
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-document.getElementById('scene-container').appendChild(renderer.domElement);
+container.appendChild(renderer.domElement);
 
-// Create studio three-point lighting setup
-const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
-keyLight.position.set(3, 5, 2);
-keyLight.castShadow = true;
-
-const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
-fillLight.position.set(-3, -2, 1);
-
-const rimLight = new THREE.DirectionalLight(0xffffff, 0.6);
-rimLight.position.set(0, 0, -5);
-
+const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+keyLight.position.set(4, 6, 5);
 scene.add(keyLight);
+
+const goldRimLight = new THREE.DirectionalLight(0xf3d078, 1.4);
+goldRimLight.position.set(-5, 3, -3);
+scene.add(goldRimLight);
+
+const fillLight = new THREE.DirectionalLight(0x88aaff, 0.9);
+fillLight.position.set(0, -5, 4);
 scene.add(fillLight);
-scene.add(rimLight);
 
-// Add ambient light for overall illumination
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-scene.add(ambientLight);
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
 
-// Material definitions for different watch finishes
 const materials = {
     'Titanium Silver': new THREE.MeshPhysicalMaterial({
-        color: 0xC0C0C0,
-        metalness: 0.85,
-        roughness: 0.1,
+        color: 0xd8dce3,
+        metalness: 0.88,
+        roughness: 0.18,
         clearcoat: 1.0
     }),
     'Rose Gold': new THREE.MeshPhysicalMaterial({
-        color: 0xDC6D74,
-        metalness: 0.8,
-        roughness: 0.15,
-        clearcoat: 0.9
+        color: 0xe29578,
+        metalness: 0.85,
+        roughness: 0.2,
+        clearcoat: 0.95
     }),
     'Stealth Carbon': new THREE.MeshPhysicalMaterial({
-        color: 0x2a2a2a,
-        metalness: 0.9,
-        roughness: 0.2,
-        clearcoat: 0.8
+        color: 0x262830,
+        metalness: 0.75,
+        roughness: 0.32,
+        clearcoat: 0.7
     })
 };
 
-// Create the basic tourbillon watch structure 
 function createTourbillonWatch() {
     const watchGroup = new THREE.Group();
-    
-    // Main watch case - Titanium Silver base with PBR material
-    const caseGeometry = new THREE.CylinderGeometry(2.5, 2.5, 0.3, 64);
-    const titaniumMaterial = materials['Titanium Silver'];
-    
-    const caseMesh = new THREE.Mesh(caseGeometry, titaniumMaterial);
-    watchGroup.add(caseMesh);
 
-    // Watch crystal - Glass with reflections
-    const crystalGeometry = new THREE.CylinderGeometry(2.6, 2.6, 0.1, 64);
-    const crystalMaterial = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        metalness: 0.9,
-        roughness: 0.05,
-        clearcoat: 1.0
+    const bezelGeometry = new THREE.TorusGeometry(2.35, 0.24, 32, 80);
+    const bezelMesh = new THREE.Mesh(bezelGeometry, materials['Titanium Silver']);
+    watchGroup.add(bezelMesh);
+
+    const caseBackGeometry = new THREE.CylinderGeometry(2.35, 2.35, 0.28, 64);
+    caseBackGeometry.rotateX(Math.PI / 2);
+    const caseBackMaterial = new THREE.MeshStandardMaterial({
+        color: 0x101018,
+        metalness: 0.8,
+        roughness: 0.35
     });
-    
-    const crystalMesh = new THREE.Mesh(crystalGeometry, crystalMaterial);
-    crystalMesh.position.z = 0.2;
-    watchGroup.add(crystalMesh);
+    const caseBackMesh = new THREE.Mesh(caseBackGeometry, caseBackMaterial);
+    caseBackMesh.position.z = -0.18;
+    watchGroup.add(caseBackMesh);
 
-    // Tourbillon cage structure with metallic properties
-    const frameGeometry = new THREE.RingGeometry(1.8, 2.3, 64);
-    const frameMaterial = materials['Titanium Silver'];
-    
-    const frameMesh = new THREE.Mesh(frameGeometry, frameMaterial);
-    watchGroup.add(frameMesh);
+    const innerRingGeometry = new THREE.RingGeometry(1.65, 2.2, 64);
+    const innerRingMesh = new THREE.Mesh(innerRingGeometry, materials['Titanium Silver']);
+    innerRingMesh.position.z = 0.02;
+    watchGroup.add(innerRingMesh);
 
-    // Add gear mechanisms inside the cage
-    const gear1Geometry = new THREE.CylinderGeometry(0.8, 0.8, 0.1, 32);
-    const gear2Geometry = new THREE.CylinderGeometry(0.5, 0.5, 0.1, 32);
-    
-    const gear1Material = materials['Titanium Silver'];
-    const gear2Material = materials['Titanium Silver'];
-    
-    const gear1 = new THREE.Mesh(gear1Geometry, gear1Material);
-    gear1.position.z = 0.15;
+    const gear1Geometry = new THREE.TorusGeometry(0.85, 0.08, 16, 48);
+    const gear1 = new THREE.Mesh(gear1Geometry, materials['Titanium Silver']);
+    gear1.position.set(0, -0.35, 0.08);
     watchGroup.add(gear1);
-    
-    const gear2 = new THREE.Mesh(gear2Geometry, gear2Material);
-    gear2.position.z = -0.15;
+
+    const gear2Geometry = new THREE.TorusGeometry(0.55, 0.06, 16, 36);
+    const gear2 = new THREE.Mesh(gear2Geometry, materials['Titanium Silver']);
+    gear2.position.set(0.35, 0.45, 0.05);
     watchGroup.add(gear2);
 
-    // Add lume indices
     const lumeIndices = [];
     for (let i = 0; i < 12; i++) {
         const angle = (i / 12) * Math.PI * 2;
-        const radius = 2.1;
-        
-        const lumeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-        const lumeMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ff99,
-            emissive: 0x00ff99,
-            emissiveIntensity: 1
+        const radius = 1.95;
+        const lumeGeometry = new THREE.SphereGeometry(0.055, 12, 12);
+        const lumeMaterial = new THREE.MeshStandardMaterial({
+            color: 0x00ffaa,
+            emissive: 0x00ffaa,
+            emissiveIntensity: 1.2
         });
-        
         const lume = new THREE.Mesh(lumeGeometry, lumeMaterial);
-        lume.position.x = Math.cos(angle) * radius;
-        lume.position.y = Math.sin(angle) * radius;
-        lume.position.z = 0.2;
-        
+        lume.position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0.14);
         watchGroup.add(lume);
         lumeIndices.push(lume);
     }
 
-    // Add skeleton hands
-    const hourHandGeometry = new THREE.CylinderGeometry(0.03, 0.03, 1, 8);
-    const minuteHandGeometry = new THREE.CylinderGeometry(0.02, 0.02, 1.5, 8);
-    
-    const handMaterial = materials['Titanium Silver'];
-    
-    const hourHand = new THREE.Mesh(hourHandGeometry, handMaterial);
-    hourHand.position.z = 0.2;
+    const hourHandGeometry = new THREE.BoxGeometry(0.08, 1.15, 0.04);
+    hourHandGeometry.translate(0, 0.45, 0);
+    const hourHand = new THREE.Mesh(hourHandGeometry, materials['Titanium Silver']);
+    hourHand.position.z = 0.18;
     watchGroup.add(hourHand);
-    
-    const minuteHand = new THREE.Mesh(minuteHandGeometry, handMaterial);
-    minuteHand.position.z = 0.2;
+
+    const minuteHandGeometry = new THREE.BoxGeometry(0.05, 1.65, 0.04);
+    minuteHandGeometry.translate(0, 0.65, 0);
+    const minuteHand = new THREE.Mesh(minuteHandGeometry, materials['Titanium Silver']);
+    minuteHand.position.z = 0.22;
     watchGroup.add(minuteHand);
 
-    return { 
-        watchGroup,
-        lumeIndices,
-        gear1,
-        gear2,
-        hourHand,
-        minuteHand
-    };
+    return { watchGroup, bezelMesh, innerRingMesh, lumeIndices, gear1, gear2, hourHand, minuteHand };
 }
 
-// Create and add our tourbillon watch to the scene
 const watch = createTourbillonWatch();
+watch.watchGroup.position.set(1.6, 0, 0);
 scene.add(watch.watchGroup);
 
-// Handle window resize
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+const particleCount = 700;
+const particles = new THREE.BufferGeometry();
+const posArray = new Float32Array(particleCount * 3);
+for (let i = 0; i < particleCount * 3; i += 3) {
+    posArray[i] = (Math.random() - 0.5) * 28;
+    posArray[i + 1] = (Math.random() - 0.5) * 28;
+    posArray[i + 2] = (Math.random() - 0.5) * 18 - 4;
 }
+particles.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+const particleSystem = new THREE.Points(
+    particles,
+    new THREE.PointsMaterial({ color: 0xf3d078, size: 0.05, transparent: true, opacity: 0.65 })
+);
+scene.add(particleSystem);
 
-window.addEventListener('resize', onWindowResize);
-
-// Mouse parallax tilt effect
 let mouseX = 0;
 let mouseY = 0;
-
 window.addEventListener('mousemove', (event) => {
     mouseX = (event.clientX / window.innerWidth) * 2 - 1;
     mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
 });
 
-// Create floating dust particles in the background
-function createDustParticles() {
-    const particleCount = 1000;
-    const particles = new THREE.BufferGeometry();
-    const posArray = new Float32Array(particleCount * 3);
-    
-    for (let i = 0; i < particleCount * 3; i += 3) {
-        // Create particles in a spherical distribution around the watch
-        const radius = 15 + Math.random() * 20;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        
-        posArray[i] = radius * Math.sin(phi) * Math.cos(theta); // X
-        posArray[i + 1] = radius * Math.sin(phi) * Math.sin(theta); // Y  
-        posArray[i + 2] = radius * Math.cos(phi); // Z
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+gsap.to(watch.watchGroup.rotation, {
+    y: Math.PI * 1.5,
+    scrollTrigger: {
+        trigger: 'body',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1
     }
-    
-    particles.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    
-    const particleMaterial = new THREE.PointsMaterial({
-        color: 0xffffff,
-        size: 0.1,
-        transparent: true,
-        opacity: 0.8
-    });
-    
-    const particleSystem = new THREE.Points(particles, particleMaterial);
-    scene.add(particleSystem);
-}
+});
 
-createDustParticles();
+gsap.to(watch.watchGroup.position, {
+    x: 0,
+    z: 1.2,
+    scrollTrigger: {
+        trigger: '.features-section',
+        start: 'top bottom',
+        end: 'center center',
+        scrub: 1
+    }
+});
 
-// Animation loop with rotation and parallax effect
+let preloaderDismissed = false;
+
 function animate() {
     requestAnimationFrame(animate);
-    
-    // Apply mouse parallax tilt effect 
-    if (watch.watchGroup) {
-        watch.watchGroup.rotation.y = mouseX * 0.2;  // Y-axis rotation based on mouse
-        watch.watchGroup.rotation.x = mouseY * 0.1;  // X-axis rotation based on mouse
-    }
-    
-    // Rotate the watch structure slowly 
-    if (watch.watchGroup) {
-        watch.watchGroup.rotation.z += 0.005;
-    }
-    
-    // Animate gear mechanisms in opposite directions
-    if (watch.gear1) {
-        watch.gear1.rotation.y += 0.02;
-    }
-    if (watch.gear2) {
-        watch.gear2.rotation.y -= 0.03;
-    }
-    
-    // Pulsing lume indices
-    const time = Date.now() * 0.005;
+
+    watch.watchGroup.rotation.x += (mouseY * 0.25 - watch.watchGroup.rotation.x) * 0.06;
+    watch.gear1.rotation.z += 0.025;
+    watch.gear2.rotation.z -= 0.035;
+    particleSystem.rotation.y += 0.0008;
+
+    const time = Date.now() * 0.004;
     watch.lumeIndices.forEach((lume, index) => {
-        const pulseIntensity = Math.sin(time + index) * 0.2 + 0.8;
-        if (lume.material) {
-            lume.material.emissive.setHex(0x00ff99);
-            lume.material.emissiveIntensity = pulseIntensity;
-        }
+        lume.material.emissiveIntensity = Math.sin(time + index * 0.5) * 0.35 + 1.0;
     });
-    
-    // Animate skeleton hands
-    const now = Date.now() * 0.001;
-    if (watch.hourHand) {
-        watch.hourHand.rotation.z = (now % 360) * Math.PI / 180; 
-    }
-    if (watch.minuteHand) {
-        watch.minuteHand.rotation.z = (now * 2) % 360 * Math.PI / 180;
-    }
+
+    const now = Date.now() * 0.0005;
+    watch.hourHand.rotation.z = -now * 0.2;
+    watch.minuteHand.rotation.z = -now;
 
     renderer.render(scene, camera);
-}
 
-// ScrollTrigger animations for watch rotation and zooming
-gsap.from('.scene-container', {
-    scrollTrigger: {
-        trigger: '.scene-container',
-        start: 'top center',
-        end: 'bottom top',
-        scrub: true,
-    },
-    rotationY: 360, // Rotate the entire scene on Y axis as we scroll
-    scale: 1.2,       // Zoom in slightly during scroll
-});
-
-// Dismiss preloader once first frame renders
-window.addEventListener('load', () => {
-    const preloader = document.querySelector('.preloader');
-    if (preloader) {
-        gsap.to(preloader, {
-            duration: 0.5,
-            opacity: 0,
-            pointerEvents: 'none',
-            onComplete: () => {
-                preloader.style.display = 'none';
-            }
-        });
-    }
-});
-
-// Material switching functionality
-function switchMaterial(materialType) {
-    if (materials[materialType]) {
-        // Apply material to watch components
-        const materialsArray = [
-            watch.watchGroup.children[0], // caseMesh
-            watch.watchGroup.children[2], // frameMesh  
-            watch.gear1,
-            watch.gear2,
-            watch.hourHand, 
-            watch.minuteHand
-        ];
-        
-        materialsArray.forEach(mesh => {
-            if (mesh && mesh.material) {
-                mesh.material = materials[materialType];
-            }
-        });
+    if (!preloaderDismissed) {
+        preloaderDismissed = true;
+        const preloader = document.getElementById('preloader');
+        if (preloader) {
+            gsap.to(preloader, {
+                duration: 0.45,
+                opacity: 0,
+                onComplete: () => { preloader.style.display = 'none'; }
+            });
+        }
     }
 }
 
-// Expose switchMaterial to global scope for use in app.js
+export function switchMaterial(materialType) {
+    const targetMat = materials[materialType];
+    if (!targetMat) return;
+    [watch.bezelMesh, watch.innerRingMesh, watch.gear1, watch.gear2, watch.hourHand, watch.minuteHand].forEach((mesh) => {
+        if (mesh) mesh.material = targetMat;
+    });
+}
+
 window.switchMaterial = switchMaterial;
+animate();
